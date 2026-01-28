@@ -544,15 +544,15 @@ function BasePerpTokenSelectorContent({
             />
           )}
         >
-            <Tabs.Tab name={tabNames.favorites}>
-              {renderTokenList(listDataByTab.favorites, listRefFavorites, true)}
-            </Tabs.Tab>
-            <Tabs.Tab name={tabNames.all}>
-              {renderTokenList(listDataByTab.all, listRefAll, false)}
-            </Tabs.Tab>
-            <Tabs.Tab name={tabNames.hip3}>
-              {renderTokenList(listDataByTab.hip3, listRefHip3, false)}
-            </Tabs.Tab>
+          <Tabs.Tab name={tabNames.favorites}>
+            {renderTokenList(listDataByTab.favorites, listRefFavorites, true)}
+          </Tabs.Tab>
+          <Tabs.Tab name={tabNames.all}>
+            {renderTokenList(listDataByTab.all, listRefAll, false)}
+          </Tabs.Tab>
+          <Tabs.Tab name={tabNames.hip3}>
+            {renderTokenList(listDataByTab.hip3, listRefHip3, false)}
+          </Tabs.Tab>
         </Tabs.Container>
       </YStack>
     </YStack>
