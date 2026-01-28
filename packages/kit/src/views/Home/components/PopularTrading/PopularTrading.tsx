@@ -421,8 +421,14 @@ function PopularTrading({ tableLayout }: { tableLayout?: boolean }) {
         const networkId = item.networkId ?? item.chainId ?? '';
         let address = item.address ?? '';
 
+        // Special handling for native tokens (short addresses)
         if (address.length < 30) {
-          address = '';
+          // Handle SUI native token specifically
+          if (item.symbol === 'SUI' && networkId === 'sui--mainnet') {
+            address = '0x2::sui::SUI';
+          } else {
+            address = '';
+          }
         }
 
         const key = `${networkId}:${address.toLowerCase()}`;
