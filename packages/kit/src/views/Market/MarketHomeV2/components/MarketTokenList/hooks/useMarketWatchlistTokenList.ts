@@ -5,7 +5,6 @@ import backgroundApiProxy from '@onekeyhq/kit/src/background/instance/background
 import { usePromiseResult } from '@onekeyhq/kit/src/hooks/usePromiseResult';
 import timerUtils from '@onekeyhq/shared/src/utils/timerUtils';
 import type { IMarketWatchListItemV2 } from '@onekeyhq/shared/types/market';
-import type { IMarketTokenListItem } from '@onekeyhq/shared/types/marketV2';
 
 import {
   SORT_MAP,
@@ -14,6 +13,17 @@ import {
 } from '../utils/tokenListHelpers';
 
 import type { IMarketToken } from '../MarketTokenData';
+
+// Helper function to check if token is native and get normalized address for matching
+// Uses isNative field with fallback to address length check for backward compatibility
+function getNativeTokenInfo(
+  isNativeField: boolean | undefined,
+  address: string | undefined,
+) {
+  const isNative = isNativeField ?? (address?.length ?? 0) < 30;
+  const normalizedAddress = isNative ? '' : (address ?? '').toLowerCase();
+  return { isNative, normalizedAddress };
+}
 
 export interface IUseMarketWatchlistTokenListParams {
   watchlist: IMarketWatchListItemV2[];
@@ -89,10 +99,11 @@ export function useMarketWatchlistTokenList({
       { chainId: string; sortIndex: number; isNative: boolean }
     > = {};
     watchlist.forEach((w) => {
-      // Use watchlist isNative field, fallback to address length check for backward compatibility
-      const isNative = w.isNative ?? (w.contractAddress?.length ?? 0) < 30;
-      const address = isNative ? '' : w.contractAddress.toLowerCase();
-      const key = `${w.chainId}:${address}`;
+      const { isNative, normalizedAddress } = getNativeTokenInfo(
+        w.isNative,
+        w.contractAddress,
+      );
+      const key = `${w.chainId}:${normalizedAddress}`;
       tokenMap[key] = {
         chainId: w.chainId,
         sortIndex: w.sortIndex ?? 0,
@@ -104,10 +115,11 @@ export function useMarketWatchlistTokenList({
       .filter((item) => item && item.address != null)
       .map((item) => {
         const networkId = item.networkId || '';
-        // Use API isNative field, fallback to address length check for backward compatibility
-        const isNative = item.isNative ?? (item.address?.length ?? 0) < 30;
-        const address = isNative ? '' : item.address;
-        const key = `${networkId}:${address.toLowerCase()}`;
+        const { normalizedAddress } = getNativeTokenInfo(
+          item.isNative,
+          item.address,
+        );
+        const key = `${networkId}:${normalizedAddress}`;
 
         const tokenInfo = tokenMap[key];
         const chainId = tokenInfo?.chainId || networkId;
@@ -126,18 +138,17 @@ export function useMarketWatchlistTokenList({
       .map((watchlistItem) => {
         // Find corresponding token in transformed data
         const found = transformed.find((token) => {
-          // Use isNative field, fallback to address length check for backward compatibility
-          const tokenIsNative =
-            token.isNative ?? (token.address?.length ?? 0) < 30;
-          const watchlistIsNative =
-            watchlistItem.isNative ??
-            (watchlistItem.contractAddress?.length ?? 0) < 30;
-          const tokenKey = tokenIsNative ? '' : token.address.toLowerCase();
-          const watchlistKey = watchlistIsNative
-            ? ''
-            : watchlistItem.contractAddress.toLowerCase();
-          const chainMatches = watchlistItem.chainId === token.chainId;
-          return tokenKey === watchlistKey && chainMatches;
+          const { normalizedAddress: tokenKey } = getNativeTokenInfo(
+            token.isNative,
+            token.address,
+          );
+          const { normalizedAddress: watchlistKey } = getNativeTokenInfo(
+            watchlistItem.isNative,
+            watchlistItem.contractAddress,
+          );
+          return (
+            tokenKey === watchlistKey && watchlistItem.chainId === token.chainId
+          );
         });
 
         return found;

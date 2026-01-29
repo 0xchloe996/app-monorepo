@@ -158,6 +158,17 @@ function RecommendCardItem({
   );
 }
 
+// Helper function to check if token is native and get normalized address for matching
+// Uses isNative field with fallback to address length check for backward compatibility
+function getNativeTokenInfo(
+  isNativeField: boolean | undefined,
+  address: string | undefined,
+) {
+  const isNative = isNativeField ?? (address?.length ?? 0) < 30;
+  const normalizedAddress = isNative ? '' : (address ?? '').toLowerCase();
+  return { isNative, normalizedAddress };
+}
+
 function PopularTrading({ tableLayout }: { tableLayout?: boolean }) {
   const intl = useIntl();
   const currencyInfo = useCurrency();
@@ -419,24 +430,21 @@ function PopularTrading({ tableLayout }: { tableLayout?: boolean }) {
       const tokenMap = new Map<string, IMarketTokenListItem>();
       response.list.forEach((item: IMarketTokenListItem) => {
         const networkId = item.networkId ?? item.chainId ?? '';
-        // Use API isNative field, fallback to address length check for backward compatibility
-        const isNative = item.isNative ?? (item.address?.length ?? 0) < 30;
-        const address = isNative ? '' : (item.address ?? '');
-
-        const key = `${networkId}:${address.toLowerCase()}`;
+        const { normalizedAddress } = getNativeTokenInfo(
+          item.isNative,
+          item.address,
+        );
+        const key = `${networkId}:${normalizedAddress}`;
         tokenMap.set(key, item);
       });
 
       const displayTokens: IFavoriteTokenDisplay[] = targetList
         .map((targetItem) => {
-          // Use watchlist isNative field, fallback to address length check for backward compatibility
-          const isNative =
-            targetItem.isNative ??
-            (targetItem.contractAddress?.length ?? 0) < 30;
-          const address = isNative
-            ? ''
-            : targetItem.contractAddress.toLowerCase();
-          const key = `${targetItem.chainId}:${address}`;
+          const { normalizedAddress } = getNativeTokenInfo(
+            targetItem.isNative,
+            targetItem.contractAddress,
+          );
+          const key = `${targetItem.chainId}:${normalizedAddress}`;
           const item = tokenMap.get(key);
 
           if (!item) {
