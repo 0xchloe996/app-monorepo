@@ -419,7 +419,9 @@ function PopularTrading({ tableLayout }: { tableLayout?: boolean }) {
       const tokenMap = new Map<string, IMarketTokenListItem>();
       response.list.forEach((item: IMarketTokenListItem) => {
         const networkId = item.networkId ?? item.chainId ?? '';
-        const address = item.isNative ? '' : (item.address ?? '');
+        // Use API isNative field, fallback to address length check for backward compatibility
+        const isNative = item.isNative ?? (item.address?.length ?? 0) < 30;
+        const address = isNative ? '' : (item.address ?? '');
 
         const key = `${networkId}:${address.toLowerCase()}`;
         tokenMap.set(key, item);
@@ -427,7 +429,11 @@ function PopularTrading({ tableLayout }: { tableLayout?: boolean }) {
 
       const displayTokens: IFavoriteTokenDisplay[] = targetList
         .map((targetItem) => {
-          const address = targetItem.isNative
+          // Use watchlist isNative field, fallback to address length check for backward compatibility
+          const isNative =
+            targetItem.isNative ??
+            (targetItem.contractAddress?.length ?? 0) < 30;
+          const address = isNative
             ? ''
             : targetItem.contractAddress.toLowerCase();
           const key = `${targetItem.chainId}:${address}`;

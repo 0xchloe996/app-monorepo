@@ -89,12 +89,14 @@ export function useMarketWatchlistTokenList({
       { chainId: string; sortIndex: number; isNative: boolean }
     > = {};
     watchlist.forEach((w) => {
-      const address = w.isNative ? '' : w.contractAddress.toLowerCase();
+      // Use watchlist isNative field, fallback to address length check for backward compatibility
+      const isNative = w.isNative ?? (w.contractAddress?.length ?? 0) < 30;
+      const address = isNative ? '' : w.contractAddress.toLowerCase();
       const key = `${w.chainId}:${address}`;
       tokenMap[key] = {
         chainId: w.chainId,
         sortIndex: w.sortIndex ?? 0,
-        isNative: w.isNative ?? false,
+        isNative,
       };
     });
 
@@ -102,7 +104,8 @@ export function useMarketWatchlistTokenList({
       .filter((item) => item && item.address != null)
       .map((item) => {
         const networkId = item.networkId || '';
-        const isNative = item.isNative ?? false;
+        // Use API isNative field, fallback to address length check for backward compatibility
+        const isNative = item.isNative ?? (item.address?.length ?? 0) < 30;
         const address = isNative ? '' : item.address;
         const key = `${networkId}:${address.toLowerCase()}`;
 
@@ -123,8 +126,12 @@ export function useMarketWatchlistTokenList({
       .map((watchlistItem) => {
         // Find corresponding token in transformed data
         const found = transformed.find((token) => {
-          const tokenIsNative = token.isNative ?? false;
-          const watchlistIsNative = watchlistItem.isNative ?? false;
+          // Use isNative field, fallback to address length check for backward compatibility
+          const tokenIsNative =
+            token.isNative ?? (token.address?.length ?? 0) < 30;
+          const watchlistIsNative =
+            watchlistItem.isNative ??
+            (watchlistItem.contractAddress?.length ?? 0) < 30;
           const tokenKey = tokenIsNative ? '' : token.address.toLowerCase();
           const watchlistKey = watchlistIsNative
             ? ''
