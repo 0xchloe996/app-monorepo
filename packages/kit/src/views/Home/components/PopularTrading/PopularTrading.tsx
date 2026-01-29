@@ -419,17 +419,7 @@ function PopularTrading({ tableLayout }: { tableLayout?: boolean }) {
       const tokenMap = new Map<string, IMarketTokenListItem>();
       response.list.forEach((item: IMarketTokenListItem) => {
         const networkId = item.networkId ?? item.chainId ?? '';
-        let address = item.address ?? '';
-
-        // Special handling for native tokens (short addresses)
-        if (address.length < 30) {
-          // Handle SUI native token specifically
-          if (item.symbol === 'SUI' && networkId === 'sui--mainnet') {
-            address = '0x2::sui::SUI';
-          } else {
-            address = '';
-          }
-        }
+        const address = item.isNative ? '' : (item.address ?? '');
 
         const key = `${networkId}:${address.toLowerCase()}`;
         tokenMap.set(key, item);
@@ -437,9 +427,10 @@ function PopularTrading({ tableLayout }: { tableLayout?: boolean }) {
 
       const displayTokens: IFavoriteTokenDisplay[] = targetList
         .map((targetItem) => {
-          const key = `${
-            targetItem.chainId
-          }:${targetItem.contractAddress.toLowerCase()}`;
+          const address = targetItem.isNative
+            ? ''
+            : targetItem.contractAddress.toLowerCase();
+          const key = `${targetItem.chainId}:${address}`;
           const item = tokenMap.get(key);
 
           if (!item) {

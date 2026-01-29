@@ -89,7 +89,8 @@ export function useMarketWatchlistTokenList({
       { chainId: string; sortIndex: number; isNative: boolean }
     > = {};
     watchlist.forEach((w) => {
-      const key = `${w.chainId}:${w.contractAddress.toLowerCase()}`;
+      const address = w.isNative ? '' : w.contractAddress.toLowerCase();
+      const key = `${w.chainId}:${address}`;
       tokenMap[key] = {
         chainId: w.chainId,
         sortIndex: w.sortIndex ?? 0,
@@ -100,36 +101,17 @@ export function useMarketWatchlistTokenList({
     const transformed: IMarketToken[] = apiResult.list
       .filter((item) => item && item.address != null)
       .map((item) => {
-        // Get isNative from watchlist data since API doesn't return it
-        let address = item.address;
         const networkId = item.networkId || '';
+        const isNative = item.isNative ?? false;
+        const address = isNative ? '' : item.address;
         const key = `${networkId}:${address.toLowerCase()}`;
 
         const tokenInfo = tokenMap[key];
         const chainId = tokenInfo?.chainId || networkId;
         const networkLogoUri = getNetworkLogoUri(chainId);
         const sortIndex = tokenInfo?.sortIndex;
-        let isNative = tokenInfo?.isNative ?? false; // Get isNative from watchlist
 
-        // TODO: Remove this after we have a better way to handle native tokens
-        // Special handling for native tokens (short addresses)
-        if (address.length < 30) {
-          if (item.symbol === 'SUI' && networkId === 'sui--mainnet') {
-            address = '0x2::sui::SUI';
-          } else {
-            address = '';
-          }
-          isNative = true;
-        }
-
-        // Add isNative to the API item
-        const itemWithNative = {
-          ...item,
-          address,
-          isNative,
-        } as IMarketTokenListItem & { isNative: boolean };
-
-        return transformApiItemToToken(itemWithNative, {
+        return transformApiItemToToken(item, {
           chainId,
           networkLogoUri,
           sortIndex,
@@ -141,8 +123,12 @@ export function useMarketWatchlistTokenList({
       .map((watchlistItem) => {
         // Find corresponding token in transformed data
         const found = transformed.find((token) => {
-          const tokenKey = token.address.toLowerCase();
-          const watchlistKey = watchlistItem.contractAddress.toLowerCase();
+          const tokenIsNative = token.isNative ?? false;
+          const watchlistIsNative = watchlistItem.isNative ?? false;
+          const tokenKey = tokenIsNative ? '' : token.address.toLowerCase();
+          const watchlistKey = watchlistIsNative
+            ? ''
+            : watchlistItem.contractAddress.toLowerCase();
           const chainMatches = watchlistItem.chainId === token.chainId;
           return tokenKey === watchlistKey && chainMatches;
         });
