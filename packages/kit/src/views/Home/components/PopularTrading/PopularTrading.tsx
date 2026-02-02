@@ -159,12 +159,14 @@ function RecommendCardItem({
 }
 
 // Helper function to check if token is native and get normalized address for matching
-// Uses isNative field with fallback to address length check for backward compatibility
+// Only uses fallback address length check when isNative field is not present (undefined)
+// This ensures online data with isNative field won't use fallback logic
 function getNativeTokenInfo(
   isNativeField: boolean | undefined,
   address: string | undefined,
 ) {
-  const isNative = isNativeField ?? (address?.length ?? 0) < 30;
+  const isNative =
+    isNativeField !== undefined ? isNativeField : (address?.length ?? 0) < 30;
   const normalizedAddress = isNative ? '' : (address ?? '').toLowerCase();
   return { isNative, normalizedAddress };
 }
