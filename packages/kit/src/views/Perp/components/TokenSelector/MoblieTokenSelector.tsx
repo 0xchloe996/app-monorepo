@@ -17,11 +17,7 @@ import {
   usePerpsAllAssetCtxsAtom,
   usePerpsAllAssetsFilteredAtom,
 } from '@onekeyhq/kit/src/states/jotai/contexts/hyperliquid/atoms';
-import type { IPerpDynamicTab } from '@onekeyhq/kit-bg/src/services/ServiceWebviewPerp/ServiceWebviewPerp';
-import {
-  usePerpTokenSelectorConfigPersistAtom,
-  usePerpTokenSelectorTabsAtom,
-} from '@onekeyhq/kit-bg/src/states/jotai/atoms';
+import { usePerpTokenSelectorConfigPersistAtom } from '@onekeyhq/kit-bg/src/states/jotai/atoms';
 import { ETranslations } from '@onekeyhq/shared/src/locale';
 import platformEnv from '@onekeyhq/shared/src/platformEnv';
 import type {
@@ -117,10 +113,8 @@ function MobileTokenSelectorModal({
     }),
     [intl],
   );
-  const [dynamicTabs] = usePerpTokenSelectorTabsAtom();
-
   const setActiveTab = useCallback(
-    (tab: string) => {
+    (tab: 'all' | 'hip3' | 'favorites') => {
       setSelectorConfig((prev) => ({
         field: prev?.field ?? DEFAULT_PERP_TOKEN_SORT_FIELD,
         direction: prev?.direction ?? DEFAULT_PERP_TOKEN_SORT_DIRECTION,
@@ -205,37 +199,24 @@ function MobileTokenSelectorModal({
     const assetsByDexTyped: IPerpsUniverse[][] = assetsByDex || [];
     const assetCtxsByDexTyped: IPerpsAssetCtx[][] = assetCtxsByDex || [];
 
-    const activeDynamicTab = dynamicTabs.find(
-      (t: IPerpDynamicTab) => t.tabId === activeTab,
-    );
-    const activeDynamicTokenSet = activeDynamicTab
-      ? new Set(activeDynamicTab.tokens)
-      : null;
-
     const combinedEntries = assetsByDexTyped.flatMap(
       (assets: IPerpsUniverse[], dexIndex: number) => {
         if (activeTab === 'hip3' && dexIndex !== 1) return [];
         const ctxs = assetCtxsByDexTyped[dexIndex] || [];
-        return assets
-          .map((asset, index) => {
-            const normalizedAssetId =
-              dexIndex === 1
-                ? asset.assetId - XYZ_ASSET_ID_OFFSET
-                : asset.assetId;
-            const sortValues = computeSortValues(ctxs?.[normalizedAssetId]);
-            return {
-              dexIndex,
-              index,
-              assetId: asset.assetId,
-              asset,
-              sortValues,
-            };
-          })
-          .filter(
-            (entry) =>
-              !activeDynamicTokenSet ||
-              activeDynamicTokenSet.has(entry.asset.name),
-          );
+        return assets.map((asset, index) => {
+          const normalizedAssetId =
+            dexIndex === 1
+              ? asset.assetId - XYZ_ASSET_ID_OFFSET
+              : asset.assetId;
+          const sortValues = computeSortValues(ctxs?.[normalizedAssetId]);
+          return {
+            dexIndex,
+            index,
+            assetId: asset.assetId,
+            asset,
+            sortValues,
+          };
+        });
       },
     );
 
@@ -276,7 +257,6 @@ function MobileTokenSelectorModal({
     assetCtxsByDex,
     assetsByDex,
     computeSortValues,
-    dynamicTabs,
     favoriteItems,
     sortCompare,
     selectorConfig?.field,
@@ -355,14 +335,6 @@ function MobileTokenSelectorModal({
               name={tabLabels[tabKey]}
               isFocused={activeTab === tabKey}
               onPress={() => setActiveTab(tabKey)}
-            />
-          ))}
-          {dynamicTabs.map((tab: IPerpDynamicTab) => (
-            <TabItem
-              key={tab.tabId}
-              name={tab.name}
-              isFocused={activeTab === tab.tabId}
-              onPress={() => setActiveTab(tab.tabId)}
             />
           ))}
         </XStack>
