@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo, useRef } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useIntl } from 'react-intl';
 
@@ -11,6 +11,7 @@ import {
   XStack,
   YStack,
 } from '@onekeyhq/components';
+import backgroundApiProxy from '@onekeyhq/kit/src/background/instance/backgroundApiProxy';
 import useAppNavigation from '@onekeyhq/kit/src/hooks/useAppNavigation';
 import { useHyperliquidActions } from '@onekeyhq/kit/src/states/jotai/contexts/hyperliquid';
 import {
@@ -18,10 +19,7 @@ import {
   usePerpsAllAssetsFilteredAtom,
 } from '@onekeyhq/kit/src/states/jotai/contexts/hyperliquid/atoms';
 import type { IPerpDynamicTab } from '@onekeyhq/kit-bg/src/services/ServiceWebviewPerp/ServiceWebviewPerp';
-import {
-  usePerpTokenSelectorConfigPersistAtom,
-  usePerpTokenSelectorTabsAtom,
-} from '@onekeyhq/kit-bg/src/states/jotai/atoms';
+import { usePerpTokenSelectorConfigPersistAtom } from '@onekeyhq/kit-bg/src/states/jotai/atoms';
 import { ETranslations } from '@onekeyhq/shared/src/locale';
 import platformEnv from '@onekeyhq/shared/src/platformEnv';
 import type {
@@ -117,7 +115,12 @@ function MobileTokenSelectorModal({
     }),
     [intl],
   );
-  const [dynamicTabs] = usePerpTokenSelectorTabsAtom();
+  const [dynamicTabs, setDynamicTabs] = useState<IPerpDynamicTab[]>([]);
+  useEffect(() => {
+    void backgroundApiProxy.serviceHyperliquid
+      .getTokenSelectorTabs()
+      .then(setDynamicTabs);
+  }, []);
 
   const setActiveTab = useCallback(
     (tab: string) => {

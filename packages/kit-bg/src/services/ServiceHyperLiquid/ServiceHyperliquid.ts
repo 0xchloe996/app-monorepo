@@ -370,6 +370,13 @@ export default class ServiceHyperliquid extends ServiceBase {
     return config.tokenSearchAliases;
   }
 
+  @backgroundMethod()
+  async getTokenSelectorTabs() {
+    void this.updatePerpsConfigByServerWithCache();
+    const config = await this.backgroundApi.simpleDb.perp.getPerpData();
+    return config.tokenSelectorTabs ?? [];
+  }
+
   private _filterFills(fills: IFill[]) {
     return fills.filter(
       (fill) =>
