@@ -271,6 +271,7 @@ export const {
   use: usePerpTokenSelectorTabsAtom,
 } = globalAtom<IPerpDynamicTab[]>({
   name: EAtomNames.perpTokenSelectorTabsAtom,
+  persist: true,
   initialValue: [],
 });
 
