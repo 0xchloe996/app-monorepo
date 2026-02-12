@@ -284,7 +284,7 @@ function PopularTrading({ tableLayout }: { tableLayout?: boolean }) {
         },
         {
           dataIndex: 'marketCap',
-          title: intl.formatMessage({ id: ETranslations.global_market_cap }),
+          title: `${intl.formatMessage({ id: ETranslations.global_market_cap })}/${intl.formatMessage({ id: ETranslations.perp_token_selector_volume })}`,
           render: (_: unknown, record: IFavoriteTokenDisplay) => (
             <NumberSizeableText
               size="$bodyLgMedium"
