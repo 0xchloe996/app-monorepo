@@ -232,7 +232,6 @@ function PerpOpenOrdersList({
         isMobile ? (
           <MobileOpenOrdersListHeader
             totalOrderCount={openOrders.length}
-            filteredOrderCount={filteredOrders.length}
           />
         ) : null
       }
