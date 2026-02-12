@@ -4,7 +4,6 @@ import { useIntl } from 'react-intl';
 
 import { Button, Checkbox, SizableText, XStack } from '@onekeyhq/components';
 import { useOrderFilterByCurrentTokenAtom } from '@onekeyhq/kit/src/states/jotai/contexts/hyperliquid/atoms';
-import { usePerpsActiveAssetAtom } from '@onekeyhq/kit-bg/src/states/jotai/atoms';
 import { ETranslations } from '@onekeyhq/shared/src/locale';
 
 import { showCancelAllOrdersDialog } from '../CancelAllOrdersModal';
@@ -21,13 +20,9 @@ export function MobileOpenOrdersListHeader({
   const intl = useIntl();
   const [filterByCurrentToken, setFilterByCurrentToken] =
     useOrderFilterByCurrentTokenAtom();
-  const [activeAsset] = usePerpsActiveAssetAtom();
-
   const handleCancelAll = useCallback(() => {
-    void showCancelAllOrdersDialog(
-      filterByCurrentToken ? activeAsset?.coin : undefined,
-    );
-  }, [filterByCurrentToken, activeAsset?.coin]);
+    void showCancelAllOrdersDialog();
+  }, []);
 
   const handleFilterChange = useCallback(
     (value: boolean | 'indeterminate') => {
@@ -66,7 +61,7 @@ export function MobileOpenOrdersListHeader({
       <Button
         size="small"
         variant="secondary"
-        disabled={filteredOrderCount === 0}
+        disabled={totalOrderCount === 0}
         onPress={handleCancelAll}
       >
         <SizableText size="$bodyXs">
