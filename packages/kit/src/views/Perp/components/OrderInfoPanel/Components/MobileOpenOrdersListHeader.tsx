@@ -10,12 +10,10 @@ import { showCancelAllOrdersDialog } from '../CancelAllOrdersModal';
 
 interface IMobileOpenOrdersListHeaderProps {
   totalOrderCount: number;
-  filteredOrderCount: number;
 }
 
 export function MobileOpenOrdersListHeader({
   totalOrderCount,
-  filteredOrderCount,
 }: IMobileOpenOrdersListHeaderProps) {
   const intl = useIntl();
   const [filterByCurrentToken, setFilterByCurrentToken] =

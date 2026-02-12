@@ -10,12 +10,10 @@ import { showCloseAllPositionsDialog } from '../CloseAllPositionsModal';
 
 interface IMobilePositionsListHeaderProps {
   totalPositionCount: number;
-  filteredPositionCount: number;
 }
 
 export function MobilePositionsListHeader({
   totalPositionCount,
-  filteredPositionCount,
 }: IMobilePositionsListHeaderProps) {
   const intl = useIntl();
   const [filterByCurrentToken, setFilterByCurrentToken] =
