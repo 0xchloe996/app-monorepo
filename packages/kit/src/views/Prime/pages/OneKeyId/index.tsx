@@ -38,6 +38,7 @@ function OneKeyIdPage() {
   const { isLoggedIn, logout } = useOneKeyAuth();
   const logoutRef = useRef<() => Promise<void>>(logout);
   const isFocused = useRouteIsFocused();
+  const isExplicitLogoutRef = useRef(false);
 
   const toPrimePage = useCallback(() => {
     requestIdleCallback(async () => {
@@ -62,6 +63,9 @@ function OneKeyIdPage() {
   }, [isPrimeAvailable]);
 
   const handleLoggedOutWhileFocused = useCallback(async () => {
+    if (isExplicitLogoutRef.current) {
+      return;
+    }
     if (!isLoggedIn && isFocused) {
       await timerUtils.wait(300);
       popModalPagesOnNative();
@@ -103,6 +107,9 @@ function OneKeyIdPage() {
           </YStack>
           <Stack p="$5">
             <PrimeUserInfo
+              onBeforeLogout={() => {
+                isExplicitLogoutRef.current = true;
+              }}
               onLogoutSuccess={async () => {
                 defaultLogger.referral.page.logoutOneKeyIDResult();
                 popModalPagesOnNative();
