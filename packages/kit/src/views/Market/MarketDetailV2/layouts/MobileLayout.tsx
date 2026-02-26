@@ -8,7 +8,6 @@ import { useSharedValue } from 'react-native-reanimated';
 import type { IDialogInstance, IScrollViewRef } from '@onekeyhq/components';
 import {
   EInPageDialogType,
-  HeaderScrollGestureWrapper,
   ScrollView,
   Stack,
   Tabs,
@@ -110,22 +109,18 @@ export function MobileLayout({ disableTrade }: { disableTrade?: boolean }) {
   const informationHeader = useMemo(() => {
     return (
       <YStack bg="$bgApp" pointerEvents="box-none">
-        <HeaderScrollGestureWrapper>
-          <PerpetualTradingBanner px="$5" />
-          <InformationPanel />
-        </HeaderScrollGestureWrapper>
-        <HeaderScrollGestureWrapper>
-          <Stack h={tradingViewHeight} position="relative">
-            <MarketTradingView
-              tokenAddress={tokenAddress}
-              networkId={networkId}
-              tokenSymbol={tokenDetail?.symbol}
-              isNative={isNative}
-              dataSource={websocketConfig?.kline ? 'websocket' : 'polling'}
-              pageWidth={width}
-            />
-          </Stack>
-        </HeaderScrollGestureWrapper>
+        <PerpetualTradingBanner px="$5" />
+        <InformationPanel />
+        <Stack h={tradingViewHeight} position="relative">
+          <MarketTradingView
+            tokenAddress={tokenAddress}
+            networkId={networkId}
+            tokenSymbol={tokenDetail?.symbol}
+            isNative={isNative}
+            dataSource={websocketConfig?.kline ? 'websocket' : 'polling'}
+            pageWidth={width}
+          />
+        </Stack>
       </YStack>
     );
   }, [
