@@ -78,7 +78,10 @@ function TabBarItem({
         onPress={() => onPress(name)}
         userSelect="none"
       >
-        <SizableText size="$bodyMdMedium" userSelect="none">{`${tabTitle} ${tabCount}`}</SizableText>
+        <SizableText
+          size="$bodyMdMedium"
+          userSelect="none"
+        >{`${tabTitle} ${tabCount}`}</SizableText>
       </XStack>
     </DebugRenderTracker>
   );

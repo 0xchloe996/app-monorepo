@@ -81,6 +81,15 @@ function OneKeyIdPage() {
     void handleLoggedOutWhileFocused();
   }, [handleLoggedOutWhileFocused]);
 
+  const handleBeforeLogout = useCallback(() => {
+    isExplicitLogoutRef.current = true;
+  }, []);
+
+  const handleLogoutSuccess = useCallback(async () => {
+    defaultLogger.referral.page.logoutOneKeyIDResult();
+    popModalPagesOnNative();
+  }, []);
+
   return (
     <Page scrollEnabled>
       <Page.Header title="OneKey ID" />
@@ -107,13 +116,8 @@ function OneKeyIdPage() {
           </YStack>
           <Stack p="$5">
             <PrimeUserInfo
-              onBeforeLogout={() => {
-                isExplicitLogoutRef.current = true;
-              }}
-              onLogoutSuccess={async () => {
-                defaultLogger.referral.page.logoutOneKeyIDResult();
-                popModalPagesOnNative();
-              }}
+              onBeforeLogout={handleBeforeLogout}
+              onLogoutSuccess={handleLogoutSuccess}
             />
           </Stack>
           <YStack>
