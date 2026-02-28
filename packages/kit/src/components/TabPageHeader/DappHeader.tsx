@@ -335,21 +335,16 @@ function AnnouncementListItem() {
   );
 }
 
-function SettingListItem({
-  onBeforeNavigate,
-}: {
-  onBeforeNavigate?: () => void;
-}) {
+function SettingListItem() {
   const intl = useIntl();
   const navigation = useAppNavigation();
   const { closePopover } = usePopoverContext();
   const handlePress = useCallback(async () => {
-    onBeforeNavigate?.();
     await closePopover?.();
     navigation.pushModal(EModalRoutes.SettingModal, {
       screen: EModalSettingRoutes.SettingListModal,
     });
-  }, [closePopover, navigation, onBeforeNavigate]);
+  }, [closePopover, navigation]);
   return (
     <ListItem
       title={intl.formatMessage({ id: ETranslations.settings_settings })}
@@ -378,11 +373,6 @@ function MoreDappActionContent() {
     }
   }, []);
 
-  const closeAllDropdowns = useCallback(() => {
-    setLanguageKey((prev) => prev + 1);
-    setCurrencyKey((prev) => prev + 1);
-  }, []);
-
   return (
     <YStack py="$3">
       <ThemeListItem />
@@ -400,7 +390,7 @@ function MoreDappActionContent() {
         <Divider />
       </YStack>
       <AnnouncementListItem />
-      <SettingListItem onBeforeNavigate={closeAllDropdowns} />
+      <SettingListItem />
     </YStack>
   );
 }
