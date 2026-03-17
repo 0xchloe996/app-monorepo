@@ -866,11 +866,11 @@ function MobileMarketWatchlistFlatListImpl({
   const showSkeleton = Boolean(isLoading) && data.length === 0;
 
   const ListEmptyComponent = useMemo(() => {
-    if (showSkeleton) {
-      return <TokenListSkeleton count={10} />;
-    }
     if (watchlist.length === 0) {
       return <MarketRecommendList recommendedTokens={recommendedTokens} />;
+    }
+    if (showSkeleton) {
+      return <TokenListSkeleton count={10} />;
     }
     return (
       <Stack alignItems="center" justifyContent="center" p="$8" mt="$10">
